@@ -9,7 +9,6 @@ from app.core.database import init_db, close_db
 
 app = FastAPI()
 
-# CORS (Cross-Origin Resource Sharing) middleware to allow requests from any origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,11 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(portfolio_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 
-# Register Tortoise-ORM and connect to the database
 register_tortoise(
     app,
     db_url=DATABASE_URL,
@@ -31,13 +28,11 @@ register_tortoise(
     add_exception_handlers=True,
 )
 
-# WebSocket route for real-time updates
 @app.websocket("/ws/portfolio")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     await portfolio_item_added(websocket)
 
-# Event handlers for initializing and closing the database connections
 @app.on_event("startup")
 async def startup_event():
     await init_db()
